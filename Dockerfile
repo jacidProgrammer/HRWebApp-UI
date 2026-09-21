@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 
 # ---- Runtime: nginx serves the SPA; /config.js and the CSP are generated from env vars at start ----
-FROM nginx:1.29-alpine
+FROM nginx:1.31-alpine
 
 # Runtime configuration (read by 40-app-config.sh). Empty values fall back to the app defaults.
 # ENABLE_HSTS=true adds Strict-Transport-Security: only when the site is served over HTTPS.
