@@ -30,8 +30,23 @@ export interface BuildEnv {
   VITE_AUTH_MODE?: string;
 }
 
+/**
+ * Public path the app is served from, always with a trailing slash: `/` normally, `/HRWebApp-UI/` for the
+ * GitHub Pages demo. Set at build time with Vite's `base` option.
+ */
+export const BASE_PATH: string = normaliseBasePath(import.meta.env.BASE_URL);
+
+/** `/` stays `/`; anything else gets exactly one leading and one trailing slash. */
+export function normaliseBasePath(base: string | undefined): string {
+  const trimmed = (base ?? '/').trim().replace(/^\/+|\/+$/g, '');
+  return trimmed ? `/${trimmed}/` : '/';
+}
+
+/** React Router's `basename`: the base path without its trailing slash (`/` stays `/`). */
+export const routerBasename = (basePath: string = BASE_PATH) => (basePath === '/' ? '/' : basePath.replace(/\/$/, ''));
+
 /** Base URL of the in-browser mock API. Same-origin, so demo mode never calls a real server. */
-export const MOCK_API_BASE_URL = '/mock-api';
+export const MOCK_API_BASE_URL = `${BASE_PATH}mock-api`;
 
 function pick(...values: (string | undefined)[]): string | undefined {
   for (const value of values) {

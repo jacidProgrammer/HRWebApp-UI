@@ -1,0 +1,2 @@
+.paged-list__more { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 24px; }
+.paged-list__note { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }

@@ -3,6 +3,7 @@ import { Suspense, useState, type ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { createQueryClient } from '../api/queryClient';
 import { AuthProvider } from '../auth/AuthProvider';
+import { routerBasename } from '../config';
 import { ToastProvider } from '../components/ui/Toast';
 import { ErrorBoundary } from '../features/system/ErrorBoundary';
 import { I18nProvider } from '../i18n/I18nProvider';
@@ -29,7 +30,7 @@ export function Providers({ children, queryClient }: { children: ReactNode; quer
             <ToastProvider>
               <Suspense fallback={null}>
                 <AuthProvider>
-                  <BrowserRouter>{children}</BrowserRouter>
+                  <BrowserRouter basename={routerBasename()}>{children}</BrowserRouter>
                 </AuthProvider>
               </Suspense>
             </ToastProvider>

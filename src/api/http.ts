@@ -2,6 +2,16 @@ import axios, { type AxiosInstance } from 'axios';
 import { config } from '../config';
 import { toApiError, unauthorizedError } from './errors';
 
+/**
+ * Requests wait for this before they are sent. Demo mode sets it to the start-up of the in-browser mock
+ * API, so the app can render while the mock loads instead of after it.
+ */
+let requestGate: Promise<unknown> = Promise.resolve();
+
+export function holdRequestsUntil(ready: Promise<unknown>): void {
+  requestGate = ready;
+}
+
 export interface AuthHandlers {
   /** Returns a valid access token, refreshing it first if it is about to expire. Rejects if it cannot. */
   getToken: () => Promise<string | undefined>;
@@ -21,6 +31,7 @@ export function createHttpClient(baseURL: string, auth: AuthHandlers): AxiosInst
   });
 
   instance.interceptors.request.use(async (request) => {
+    await requestGate;
     let token: string | undefined;
     try {
       token = await auth.getToken();

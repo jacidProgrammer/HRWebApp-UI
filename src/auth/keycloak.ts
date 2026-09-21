@@ -1,5 +1,5 @@
 import Keycloak from 'keycloak-js';
-import { config } from '../config';
+import { BASE_PATH, config } from '../config';
 
 export const keycloak = new Keycloak({
   url: config.keycloak.url,
@@ -42,5 +42,5 @@ export function login(): void {
 }
 
 export function logout(): void {
-  void keycloak.logout({ redirectUri: window.location.origin });
+  void keycloak.logout({ redirectUri: `${window.location.origin}${BASE_PATH}` });
 }

@@ -11,3 +11,6 @@ dist-mock
 e2e
 test-results
 playwright-report
+dist-pages
+.lighthouseci
+blob-report

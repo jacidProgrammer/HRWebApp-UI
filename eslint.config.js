@@ -6,7 +6,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist', 'dist-mock', 'coverage', 'playwright-report', 'test-results', 'public/mockServiceWorker.js']),
+  globalIgnores(['dist', 'dist-mock', 'dist-pages', '.lighthouseci', 'coverage', 'playwright-report', 'test-results', 'public/mockServiceWorker.js', 'src/api/generated']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked, reactHooks.configs.flat.recommended],

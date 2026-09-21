@@ -21,6 +21,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const error = (status: number, code: string, message: string) => HttpResponse.json({ code, message }, { status });
 /** Spring Security answers 401/403 without a body. */
 const denied = (status: 401 | 403) => new HttpResponse(null, { status });
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Like Spring's type conversion of a `UUID` path variable: a malformed id is a 400, before any role check. */
+const invalidId = (id: unknown) => (typeof id === 'string' && UUID.test(id) ? null : error(400, 'BAD_REQUEST', "Invalid value for 'id'"));
 
 const isManager = (caller: Caller) => caller.persona.roles.includes('MANAGER');
 const isEmployee = (caller: Caller) => caller.persona.roles.includes('EMPLOYEE');
@@ -88,6 +91,8 @@ export function createHandlers(db: MockDb, { baseUrl, latency = 0, now = () => n
     http.get(url('/employees/:id'), async ({ request, params }) => {
       const caller = await authenticate(request);
       if (caller instanceof Response) return caller;
+      const malformed = invalidId(params.id);
+      if (malformed) return malformed;
       const employee = employees().find((e) => e.id === params.id);
       if (!employee) return error(404, 'NOT_FOUND', `Employee '${String(params.id)}' not found`);
       return HttpResponse.json(toEmployee(caller, employee));
@@ -125,6 +130,8 @@ export function createHandlers(db: MockDb, { baseUrl, latency = 0, now = () => n
     http.put(url('/employees/:id'), async ({ request, params }) => {
       const caller = await authenticate(request);
       if (caller instanceof Response) return caller;
+      const malformed = invalidId(params.id);
+      if (malformed) return malformed;
       const employee = employees().find((e) => e.id === params.id);
       if (!employee) return error(404, 'NOT_FOUND', `Employee '${String(params.id)}' not found`);
       const body = (await request.json()) as Record<string, unknown>;
@@ -162,6 +169,8 @@ export function createHandlers(db: MockDb, { baseUrl, latency = 0, now = () => n
     http.delete(url('/employees/:id'), async ({ request, params }) => {
       const caller = await authenticate(request);
       if (caller instanceof Response) return caller;
+      const malformed = invalidId(params.id);
+      if (malformed) return malformed;
       if (!isManager(caller)) return denied(403);
       const employee = employees().find((e) => e.id === params.id);
       if (!employee) return error(404, 'NOT_FOUND', `Employee '${String(params.id)}' not found`);

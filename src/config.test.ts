@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MOCK_API_BASE_URL, resolveConfig } from './config';
+import { MOCK_API_BASE_URL, normaliseBasePath, resolveConfig, routerBasename } from './config';
 
 describe('resolveConfig', () => {
   it('uses the defaults of the backend docker-compose setup', () => {
@@ -31,5 +31,23 @@ describe('resolveConfig', () => {
     expect(resolveConfig(undefined, { VITE_AUTH_MODE: 'mock' }).authMode).toBe('mock');
     expect(resolveConfig(undefined, { MODE: 'mock' })).toMatchObject({ authMode: 'mock', apiBaseUrl: MOCK_API_BASE_URL });
     expect(resolveConfig({ AUTH_MODE: 'keycloak' }, { MODE: 'mock' }).authMode).toBe('keycloak');
+  });
+});
+
+describe('base path', () => {
+  it('normalises the Vite base to a leading and trailing slash', () => {
+    expect(normaliseBasePath(undefined)).toBe('/');
+    expect(normaliseBasePath('/')).toBe('/');
+    expect(normaliseBasePath('HRWebApp-UI')).toBe('/HRWebApp-UI/');
+    expect(normaliseBasePath('/HRWebApp-UI/')).toBe('/HRWebApp-UI/');
+  });
+
+  it('gives React Router a basename without the trailing slash', () => {
+    expect(routerBasename('/')).toBe('/');
+    expect(routerBasename('/HRWebApp-UI/')).toBe('/HRWebApp-UI');
+  });
+
+  it('keeps the mock API under the base path, so the service worker scope covers it', () => {
+    expect(MOCK_API_BASE_URL).toBe('/mock-api');
   });
 });

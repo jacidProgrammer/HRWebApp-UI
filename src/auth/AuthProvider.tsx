@@ -1,8 +1,9 @@
 import { lazy, type ReactNode } from 'react';
 import { config } from '../config';
-import { KeycloakAuthProvider } from './KeycloakAuthProvider';
 
-// Demo mode never loads in a normal deployment unless AUTH_MODE=mock.
+// Each mode loads only its own provider: keycloak-js is never downloaded in demo mode, and the demo never
+// loads in a normal deployment unless AUTH_MODE=mock.
+const KeycloakAuthProvider = lazy(() => import('./KeycloakAuthProvider').then((module) => ({ default: module.KeycloakAuthProvider })));
 const MockAuthProvider = lazy(() => import('./MockAuthProvider'));
 
 /** Keycloak in real deployments, a role picker in demo mode. */

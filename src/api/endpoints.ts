@@ -8,6 +8,7 @@ import type {
   FeedbackInput,
   FeedbackQuery,
   Settings,
+  StatsMonths,
   StatsOverview,
 } from './types';
 
@@ -50,7 +51,7 @@ export const feedbackApi = {
 
 export const statsApi = {
   /** MANAGER. `months` is 1..12 (default 6 on the server). */
-  overview: async (months?: number): Promise<StatsOverview> =>
+  overview: async (months?: StatsMonths): Promise<StatsOverview> =>
     (await http.get<StatsOverview>('/stats/overview', { params: months ? { months } : undefined })).data,
 };
 

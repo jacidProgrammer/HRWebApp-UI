@@ -215,3 +215,10 @@ input[type='date'].input { min-width: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Static placeholder in index.html, shown until React's first render replaces it. */
+.boot { min-height: 100dvh; display: grid; place-items: center; }
+.boot svg { animation: boot-pulse 1.4s ease-in-out infinite alternate; }
+@keyframes boot-pulse { from { opacity: 0.55; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .boot svg { animation: none; } }
+

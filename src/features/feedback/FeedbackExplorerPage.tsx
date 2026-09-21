@@ -1,42 +1,23 @@
 import { FilterX, MessagesSquare } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useEmployees, useFeedbackList } from '../../api/hooks';
-import type { Feedback, FeedbackQuery, SentimentFilter } from '../../api/types';
+import type { FeedbackQuery, SentimentFilter } from '../../api/types';
 import { usePageTitle } from '../../components/shell/pageTitle';
 import { ErrorState } from '../../components/ui/Alert';
+import { DateField } from '../../components/ui/DateField';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PersonCombobox } from '../../components/ui/PersonCombobox';
 import { SkeletonList } from '../../components/ui/Skeleton';
 import { useI18n } from '../../i18n/context';
 import { countSentiment } from '../people/sentimentCounts';
 import { departmentsOf } from '../people/peopleView';
-import { FeedbackList } from '../recognition/FeedbackCard';
+import { PagedFeedbackList } from '../recognition/PagedFeedbackList';
 import { activeFilterCount, readFeedbackFilters, writeFeedbackFilters } from './feedbackFilters';
 import './FeedbackExplorerPage.css';
 
 const SENTIMENT_OPTIONS: SentimentFilter[] = ['POSITIVE', 'NEUTRAL', 'NEGATIVE', 'NONE'];
 const PAGE_SIZE = 20;
-
-/** Renders the results a page at a time, so a long history stays quick to scan. Remounted per filter set. */
-function PagedFeedback({ items }: { items: Feedback[] }) {
-  const { t } = useI18n();
-  const [visible, setVisible] = useState(PAGE_SIZE);
-  const remaining = items.length - visible;
-  return (
-    <>
-      <FeedbackList items={items.slice(0, visible)} perspective="all" />
-      {remaining > 0 && (
-        <div className="explorer__more">
-          <button type="button" className="btn btn--secondary" onClick={() => setVisible((v) => v + PAGE_SIZE)}>
-            {t('explorer.showMore', { count: Math.min(PAGE_SIZE, remaining) })}
-          </button>
-          <p className="explorer__more-note">{t('explorer.showing', { shown: visible, total: items.length })}</p>
-        </div>
-      )}
-    </>
-  );
-}
 
 export default function FeedbackExplorerPage() {
   const { t, tp } = useI18n();
@@ -99,18 +80,8 @@ export default function FeedbackExplorerPage() {
               onChange={(id) => setQuery({ recipientId: id ?? undefined })}
             />
           </div>
-          <div className="field">
-            <label className="field__label" htmlFor="filter-from">
-              {t('explorer.from')}
-            </label>
-            <input id="filter-from" type="date" className="input" value={query.from ?? ''} max={query.to} onChange={(e) => setQuery({ from: e.target.value || undefined })} />
-          </div>
-          <div className="field">
-            <label className="field__label" htmlFor="filter-to">
-              {t('explorer.to')}
-            </label>
-            <input id="filter-to" type="date" className="input" value={query.to ?? ''} min={query.from} onChange={(e) => setQuery({ to: e.target.value || undefined })} />
-          </div>
+          <DateField label={t('explorer.from')} value={query.from} max={query.to} onChange={(from) => setQuery({ from })} />
+          <DateField label={t('explorer.to')} value={query.to} min={query.from} onChange={(to) => setQuery({ to })} />
         </div>
       </section>
 
@@ -159,7 +130,7 @@ export default function FeedbackExplorerPage() {
         </div>
       ) : (
         <div className={feedback.isPlaceholderData ? 'is-stale' : undefined}>
-          <PagedFeedback key={params.toString()} items={feedback.data} />
+          <PagedFeedbackList key={params.toString()} items={feedback.data} perspective="all" pageSize={PAGE_SIZE} />
         </div>
       )}
     </div>

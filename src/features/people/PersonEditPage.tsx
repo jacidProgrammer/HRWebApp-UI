@@ -8,6 +8,7 @@ import { LoadingRegion, Skeleton } from '../../components/ui/Skeleton';
 import { useToast } from '../../components/ui/toastContext';
 import { useI18n } from '../../i18n/context';
 import { EmployeeForm } from './EmployeeForm';
+import { isMissingPerson } from './missingPerson';
 import { departmentsOf } from './peopleView';
 
 export default function PersonEditPage() {
@@ -31,7 +32,7 @@ export default function PersonEditPage() {
           <Skeleton height={480} radius={12} />
         </LoadingRegion>
       ) : employee.isError ? (
-        employee.error.kind === 'NOT_FOUND' ? (
+        isMissingPerson(employee.error) ? (
           <EmptyState icon={UserX} tone="neutral" title={t('person.notFound.title')}>
             {t('person.notFound.body')}
           </EmptyState>

@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { setAuthHandlers } from '../api/http';
 import { BrandMark } from '../components/shell/BrandMark';
 import { Avatar } from '../components/ui/Avatar';
+import { BASE_PATH } from '../config';
 import { useI18n } from '../i18n/context';
 import { LANGUAGE_NAMES, LOCALES, type Locale } from '../i18n/core';
 import { readStorage, writeStorage } from '../lib/storage';
@@ -17,11 +18,28 @@ function connect(persona: MockPersona) {
   setAuthHandlers({ getToken: () => Promise.resolve(mockToken(persona.username)), onUnauthorized: () => undefined });
 }
 
+/**
+ * `?as=<username>` (e.g. `?as=manager`, `?as=jose`) signs in as that demo persona straight away, so a link
+ * can open the demo on a given role. The parameter is removed from the address bar.
+ */
+function personaFromUrl(): MockPersona | undefined {
+  const params = new URLSearchParams(window.location.search);
+  const persona = findPersona(params.get('as')?.toLowerCase() ?? null);
+  if (params.has('as')) {
+    params.delete('as');
+    const search = params.toString();
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`);
+  }
+  return persona;
+}
+
 /** Demo mode: no Keycloak. The visitor picks a role and the in-browser mock API trusts that choice. */
 export default function MockAuthProvider({ children }: { children: ReactNode }) {
   const { t, locale, setLocale } = useI18n();
   const [persona, setPersona] = useState<MockPersona | undefined>(() => {
-    const stored = findPersona(readStorage(MOCK_USER_STORAGE_KEY, 'session'));
+    const requested = personaFromUrl();
+    if (requested) writeStorage(MOCK_USER_STORAGE_KEY, requested.username, 'session');
+    const stored = requested ?? findPersona(readStorage(MOCK_USER_STORAGE_KEY, 'session'));
     if (stored) connect(stored);
     return stored;
   });
@@ -37,7 +55,7 @@ export default function MockAuthProvider({ children }: { children: ReactNode }) 
     const user = { username: persona.username, displayName: persona.displayName, email: null, roles: persona.roles };
     return createAuthValue(user, () => {
       writeStorage(MOCK_USER_STORAGE_KEY, null, 'session');
-      window.history.replaceState(null, '', '/');
+      window.history.replaceState(null, '', BASE_PATH);
       setPersona(undefined);
     });
   }, [persona]);

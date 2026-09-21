@@ -9,3 +9,5 @@ dist-mock/
 test-results/
 playwright-report/
 blob-report/
+dist-pages/
+.lighthouseci/

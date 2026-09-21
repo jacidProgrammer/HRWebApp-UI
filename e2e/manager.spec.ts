@@ -111,4 +111,14 @@ test.describe('manager', () => {
     await page.goto('/recognition/give');
     await expect(page.getByText('AI analysis is disabled by your organisation.', { exact: false })).toBeVisible();
   });
+
+  test('a broken person link says the person does not exist', async ({ page }) => {
+    // The API answers 400 for an id that is not a UUID, and 404 for an unknown one.
+    await signInAs(page, 'Manager', '/people/not-a-uuid');
+    await expect(page.getByRole('heading', { name: 'This person doesn’t exist' })).toBeVisible();
+    for (const id of ['not-a-uuid', '00000000-0000-4000-8000-000000000000']) {
+      await page.goto(`/people/${id}`);
+      await expect(page.getByRole('heading', { name: 'This person doesn’t exist' })).toBeVisible();
+    }
+  });
 });

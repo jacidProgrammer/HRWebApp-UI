@@ -11,8 +11,9 @@ import { MenuButton } from '../../components/ui/Menu';
 import { LoadingRegion, Skeleton, SkeletonList } from '../../components/ui/Skeleton';
 import { useI18n } from '../../i18n/context';
 import { useFormat } from '../../lib/format';
-import { FeedbackList } from '../recognition/FeedbackCard';
+import { PagedFeedbackList } from '../recognition/PagedFeedbackList';
 import { DeletePersonDialog } from './DeletePersonDialog';
+import { isMissingPerson } from './missingPerson';
 import { PersonHeader } from './PersonHeader';
 import { SentimentSummary } from './SentimentSummary';
 import './PersonPage.css';
@@ -86,6 +87,9 @@ function FeedbackSummaryCard({ employee }: { employee: Employee }) {
   );
 }
 
+/** Feedback about a person is shown five at a time; more loads on demand, like the explorer. */
+const FEEDBACK_PAGE_SIZE = 5;
+
 function FeedbackAboutList({ employee }: { employee: Employee }) {
   const { t } = useI18n();
   const feedback = useFeedbackList({ recipientId: employee.id });
@@ -103,7 +107,7 @@ function FeedbackAboutList({ employee }: { employee: Employee }) {
             </EmptyState>
           </div>
         ) : (
-          <FeedbackList items={feedback.data} perspective="about" />
+          <PagedFeedbackList key={employee.id} items={feedback.data} perspective="about" pageSize={FEEDBACK_PAGE_SIZE} />
         )}
       </section>
   );
@@ -143,7 +147,7 @@ export function PersonPage() {
     return (
       <div className="page">
         {back}
-        {employee.error.kind === 'NOT_FOUND' ? (
+        {isMissingPerson(employee.error) ? (
           <EmptyState icon={UserX} tone="neutral" title={t('person.notFound.title')}>
             {t('person.notFound.body')}
           </EmptyState>
