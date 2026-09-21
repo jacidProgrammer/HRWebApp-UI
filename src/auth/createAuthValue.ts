@@ -5,7 +5,7 @@ export function createAuthValue(user: AuthUser, logout: () => void): AuthContext
   return {
     user,
     hasRole: (role) => user.roles.includes(role),
-    isSelf: (employeeName) => isSameUser(user, employeeName),
+    isSelf: (employeeUsername) => isSameUser(user, employeeUsername),
     logout,
   };
 }

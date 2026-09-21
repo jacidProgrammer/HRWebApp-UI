@@ -1,53 +1,59 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { employeeUser, makeUser, managerUser, renderWithAuth } from '../test/render';
+import { employeeUser, makeUser, managerUser, renderWithProviders } from '../test/render';
 import { RequireRole } from './RequireRole';
 
 describe('RequireRole', () => {
-  it('renders the page when the user has one of the roles', () => {
-    renderWithAuth(
-      <RequireRole anyOf={['MANAGER', 'EMPLOYEE']}>
-        <p>Secret page</p>
-      </RequireRole>,
-      { user: employeeUser },
-    );
-
-    expect(screen.getByText('Secret page')).toBeInTheDocument();
-  });
-
-  it('shows an access-denied page instead of manager-only content to an employee', () => {
-    renderWithAuth(
+  it('renders the children for a user with the role', () => {
+    renderWithProviders(
       <RequireRole anyOf={['MANAGER']}>
-        <p>Secret page</p>
-      </RequireRole>,
-      { user: employeeUser },
-    );
-
-    expect(screen.queryByText('Secret page')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Access denied' })).toBeInTheDocument();
-    expect(screen.getByText(/requires the MANAGER role/)).toBeInTheDocument();
-  });
-
-  it('renders the fallback when one is given, e.g. to hide a control', () => {
-    renderWithAuth(
-      <RequireRole anyOf={['EMPLOYEE']} fallback={null}>
-        <button type="button">Send feedback</button>
+        <p>Dashboard</p>
       </RequireRole>,
       { user: managerUser },
     );
-
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Access denied' })).not.toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('denies users without any known role', () => {
-    renderWithAuth(
+  it('accepts any of several roles', () => {
+    renderWithProviders(
       <RequireRole anyOf={['MANAGER', 'EMPLOYEE']}>
-        <p>Secret page</p>
+        <p>Directory</p>
       </RequireRole>,
-      { user: makeUser('guest', []) },
+      { user: employeeUser },
     );
+    expect(screen.getByText('Directory')).toBeInTheDocument();
+  });
 
-    expect(screen.getByRole('heading', { name: 'Access denied' })).toBeInTheDocument();
+  it('shows an access-denied page with a way home otherwise', () => {
+    renderWithProviders(
+      <RequireRole anyOf={['MANAGER']}>
+        <p>Dashboard</p>
+      </RequireRole>,
+      { user: employeeUser },
+    );
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Access denied' })).toBeInTheDocument();
+    expect(screen.getByText(/requires the MANAGER role/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/');
+  });
+
+  it('renders a custom fallback instead', () => {
+    renderWithProviders(
+      <RequireRole anyOf={['EMPLOYEE']} fallback={<p>Managers have no recognition inbox</p>}>
+        <p>Inbox</p>
+      </RequireRole>,
+      { user: makeUser('boss', ['MANAGER']) },
+    );
+    expect(screen.getByText('Managers have no recognition inbox')).toBeInTheDocument();
+  });
+
+  it('localises the denial', () => {
+    renderWithProviders(
+      <RequireRole anyOf={['MANAGER']}>
+        <p>Dashboard</p>
+      </RequireRole>,
+      { user: employeeUser, locale: 'de' },
+    );
+    expect(screen.getByRole('heading', { level: 1, name: 'Zugriff verweigert' })).toBeInTheDocument();
   });
 });

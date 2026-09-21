@@ -5,8 +5,8 @@ import type { AuthUser } from './user';
 export interface AuthContextValue {
   user: AuthUser;
   hasRole: (role: Role) => boolean;
-  /** Whether the given employee name is the signed-in user. */
-  isSelf: (employeeName: string | null | undefined) => boolean;
+  /** Whether an employee (by username) is the signed-in user. */
+  isSelf: (employeeUsername: string | null | undefined) => boolean;
   logout: () => void;
 }
 

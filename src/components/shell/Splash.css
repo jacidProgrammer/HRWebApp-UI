@@ -1,0 +1,27 @@
+.splash {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+.splash__title { font-size: var(--text-xl); font-weight: 600; }
+.splash--loading .splash__title { font-size: var(--text-md); font-weight: 500; color: var(--text-secondary); }
+.splash__body { max-width: 52ch; color: var(--text-secondary); margin: 0; }
+.splash__progress {
+  width: 120px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, transparent, var(--accent), transparent) var(--surface-sunken);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: splash-progress 1.1s ease-in-out infinite;
+}
+@keyframes splash-progress {
+  from { background-position: -60px 0; }
+  to { background-position: 180px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .splash__progress { animation: none; background-position: center; } }

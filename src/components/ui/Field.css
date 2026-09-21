@@ -1,0 +1,38 @@
+.field { display: grid; gap: 6px; min-width: 0; align-content: start; }
+.field__label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.field__label { font-size: var(--text-md); font-weight: 550; color: var(--text); }
+.field__optional { font-weight: 400; color: var(--text-muted); }
+.field__hint { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.field__error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--danger);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.field__error::before {
+  content: '!';
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+  flex: none;
+}
+
+.input-wrap { position: relative; }
+.input-wrap__leading {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.input-wrap--leading .input { padding-left: 36px; }

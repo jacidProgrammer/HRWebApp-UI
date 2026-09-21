@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { hasErrors, validateContactDetails, validateEmployee, validateFeedback } from './validation';
+import { hasErrors, parseSalary, validateContactDetails, validateEmployee, validateRecognition } from './validation';
 
 const valid = {
-  name: 'Maria',
+  username: 'maria',
+  name: 'Maria Rossi',
   department: 'Sales',
   role: 'Account Executive',
   email: 'maria@example.com',
@@ -12,50 +13,67 @@ const valid = {
 
 describe('validateEmployee', () => {
   it('accepts a complete employee', () => {
-    expect(hasErrors(validateEmployee(valid))).toBe(false);
+    expect(hasErrors(validateEmployee(valid, { requireUsername: true }))).toBe(false);
   });
 
-  it('requires every field, like Employee.requireComplete on the backend', () => {
-    const errors = validateEmployee({ name: ' ', department: '', role: '', email: '', salary: '', address: '' });
-
-    expect(errors).toEqual({
-      name: 'Name is required.',
-      department: 'Department is required.',
-      role: 'Role is required.',
-      email: 'Email is required.',
-      salary: 'Salary is required.',
-      address: 'Address is required.',
+  it('requires every field, like the backend', () => {
+    const empty = { username: '', name: ' ', department: '', role: '', email: '', salary: '', address: '' };
+    expect(validateEmployee(empty, { requireUsername: true })).toEqual({
+      username: 'validation.required',
+      name: 'validation.required',
+      department: 'validation.required',
+      role: 'validation.required',
+      email: 'validation.required',
+      salary: 'validation.required',
+      address: 'validation.required',
     });
   });
 
-  it('rejects invalid emails, non-numeric or negative salaries and values longer than the column', () => {
-    const errors = validateEmployee({ ...valid, email: 'maria', salary: '-1', address: 'x'.repeat(256) });
-
-    expect(errors.email).toBe('Enter a valid email address.');
-    expect(errors.salary).toBe('Salary cannot be negative.');
-    expect(errors.address).toBe('Address must be at most 255 characters.');
-    expect(validateEmployee({ ...valid, salary: 'lots' }).salary).toBe('Salary must be a number.');
+  it('does not check the username when editing, because it is immutable', () => {
+    expect(validateEmployee({ ...valid, username: '' }, { requireUsername: false }).username).toBeUndefined();
   });
 
-  it('accepts a decimal comma in the salary', () => {
-    expect(validateEmployee({ ...valid, salary: '61000,50' }).salary).toBeUndefined();
+  it('rejects invalid emails and usernames, salaries of zero or less and values longer than the column', () => {
+    const errors = validateEmployee(
+      { ...valid, username: 'maria rossi', email: 'maria', salary: '0', address: 'x'.repeat(256) },
+      { requireUsername: true },
+    );
+    expect(errors).toMatchObject({
+      username: 'validation.username',
+      email: 'validation.email',
+      salary: 'validation.salaryPositive',
+      address: 'validation.tooLong',
+    });
+    expect(validateEmployee({ ...valid, salary: 'lots' }, { requireUsername: true }).salary).toBe('validation.number');
+  });
+});
+
+describe('parseSalary', () => {
+  it('understands English and German/Spanish separators', () => {
+    expect(parseSalary('61000')).toBe(61000);
+    expect(parseSalary('61,000.50')).toBe(61000.5);
+    expect(parseSalary('61.000,50')).toBe(61000.5);
+    expect(parseSalary('61000,5 €')).toBe(61000.5);
+    expect(parseSalary('abc')).toBeNull();
   });
 });
 
 describe('validateContactDetails', () => {
   it('requires a valid email and an address', () => {
     expect(validateContactDetails({ email: 'nope', address: '' })).toEqual({
-      email: 'Enter a valid email address.',
-      address: 'Address is required.',
+      email: 'validation.email',
+      address: 'validation.required',
     });
   });
 });
 
-describe('validateFeedback', () => {
-  it('needs a colleague and a message', () => {
-    expect(validateFeedback({ name: '', message: '  ' })).toEqual({
-      name: 'Choose a colleague.',
-      message: 'Message is required.',
+describe('validateRecognition', () => {
+  it('needs a colleague and a message of 1 to 500 characters', () => {
+    expect(validateRecognition({ recipientId: null, message: '   ' })).toEqual({
+      recipientId: 'validation.recipient',
+      message: 'validation.messageRequired',
     });
+    expect(validateRecognition({ recipientId: 'id', message: 'x'.repeat(501) }).message).toBe('validation.messageTooLong');
+    expect(hasErrors(validateRecognition({ recipientId: 'id', message: 'x'.repeat(500) }))).toBe(false);
   });
 });

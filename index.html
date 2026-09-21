@@ -3,10 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="HR Portal: employee directory and peer feedback with sentiment analysis, secured with Keycloak." />
+    <meta name="description" content="HR Portal: peer recognition for everyone, with sentiment insights for managers." />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>HR Portal</title>
+    <script>
+      // Apply the saved theme before the first paint to avoid a flash of the wrong colours.
+      (function () {
+        var preference = 'system';
+        try {
+          preference = localStorage.getItem('hr.theme') || 'system';
+        } catch (e) {}
+        var dark = preference === 'dark' || (preference !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
+    <!-- Runtime configuration, generated at container start (window.__APP_CONFIG__) -->
+    <script src="/config.js"></script>
   </head>
   <body>
     <div id="root"></div>

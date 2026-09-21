@@ -1,7 +1,7 @@
 import { isRole, type Role } from './roles';
 
 export interface AuthUser {
-  /** Keycloak `preferred_username`; the backend matches it (case-insensitively) to an employee name. */
+  /** Keycloak `preferred_username`; the backend links it (case-insensitively) to an employee's `username`. */
   username: string;
   displayName: string;
   email: string | null;
@@ -28,7 +28,7 @@ export function userFromToken(claims: TokenClaims | undefined): AuthUser {
   };
 }
 
-/** Whether an employee name refers to the signed-in user (same rule as the backend). */
-export function isSameUser(user: AuthUser, employeeName: string | null | undefined): boolean {
-  return !!employeeName && user.username.toLowerCase() === employeeName.toLowerCase();
+/** Whether an employee username belongs to the signed-in user (same rule as the backend). */
+export function isSameUser(user: AuthUser, employeeUsername: string | null | undefined): boolean {
+  return !!employeeUsername && !!user.username && user.username.toLowerCase() === employeeUsername.toLowerCase();
 }

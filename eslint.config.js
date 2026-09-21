@@ -6,7 +6,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist', 'coverage']),
+  globalIgnores(['dist', 'dist-mock', 'coverage', 'playwright-report', 'test-results', 'public/mockServiceWorker.js']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked, reactHooks.configs.flat.recommended],
@@ -30,8 +30,17 @@ export default defineConfig(
     extends: [reactRefresh.configs.vite()],
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,mjs}'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },
+  },
+  {
+    // Playwright scripts: Node, plus browser globals inside page callbacks.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
+    files: ['public/**/*.js'],
+    languageOptions: { globals: globals.browser },
   },
 );

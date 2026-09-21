@@ -1,0 +1,15 @@
+.sentiment-summary { display: grid; gap: 16px; }
+.sentiment-summary__headline { display: grid; gap: 2px; }
+.sentiment-summary__value { font-size: var(--text-3xl); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.sentiment-summary__caption { font-size: var(--text-sm); color: var(--text-muted); }
+.sentiment-summary__bar { display: flex; gap: 2px; height: 10px; border-radius: var(--radius-full); overflow: hidden; }
+.sentiment-summary__segment { display: block; min-width: 4px; }
+.sentiment-summary__segment--positive, .legend-swatch--positive { background: var(--sentiment-positive); }
+.sentiment-summary__segment--neutral, .legend-swatch--neutral { background: var(--sentiment-neutral); }
+.sentiment-summary__segment--negative, .legend-swatch--negative { background: var(--sentiment-negative); }
+.sentiment-summary__segment--notAnalysed, .legend-swatch--notAnalysed { background: var(--sentiment-none); }
+.sentiment-summary__legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.sentiment-summary__legend li { display: flex; align-items: center; gap: 8px; font-size: var(--text-md); }
+.sentiment-summary__legend-label { flex: 1; color: var(--text-secondary); }
+.sentiment-summary__legend-count { font-weight: 600; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }

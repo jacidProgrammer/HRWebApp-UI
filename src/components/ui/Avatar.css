@@ -1,0 +1,35 @@
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: var(--radius-full);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  user-select: none;
+  background: var(--avatar-bg, #4f46e5);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+.avatar--xs { width: 20px; height: 20px; font-size: 9px; }
+.avatar--sm { width: 28px; height: 28px; font-size: 11px; }
+.avatar--md { width: 36px; height: 36px; font-size: 13px; }
+.avatar--lg { width: 48px; height: 48px; font-size: 17px; }
+.avatar--xl { width: 72px; height: 72px; font-size: 24px; }
+
+/* White initials on each colour meet WCAG AA (>= 4.5:1). */
+.avatar--c0 { --avatar-bg: #4f46e5; }
+.avatar--c1 { --avatar-bg: #0e7490; }
+.avatar--c2 { --avatar-bg: #047857; }
+.avatar--c3 { --avatar-bg: #b45309; }
+.avatar--c4 { --avatar-bg: #be185d; }
+.avatar--c5 { --avatar-bg: #7c3aed; }
+.avatar--c6 { --avatar-bg: #1d4ed8; }
+.avatar--c7 { --avatar-bg: #c2410c; }
+
+.avatar--anonymous {
+  --avatar-bg: var(--surface-sunken);
+  color: var(--text-muted);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.avatar__icon { width: 45%; height: 45%; }

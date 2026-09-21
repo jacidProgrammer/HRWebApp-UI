@@ -1,0 +1,33 @@
+.sentiment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.sentiment__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sentiment-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sentiment-color) 18%, transparent);
+  flex: none;
+}
+.sentiment__label { font-weight: 550; color: var(--text); }
+.sentiment__confidence { display: inline-flex; align-items: center; gap: 6px; }
+.sentiment__bar {
+  width: 44px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+.sentiment__fill { display: block; height: 100%; border-radius: inherit; background: var(--sentiment-color); }
+.sentiment__score { font-variant-numeric: tabular-nums; font-size: var(--text-xs); color: var(--text-muted); }
+
+.sentiment--positive { --sentiment-color: var(--sentiment-positive); }
+.sentiment--neutral { --sentiment-color: var(--sentiment-neutral); }
+.sentiment--negative { --sentiment-color: var(--sentiment-negative); }
+.sentiment--none { --sentiment-color: var(--sentiment-none); }
+.sentiment--none .sentiment__label { font-weight: 450; color: var(--text-muted); }

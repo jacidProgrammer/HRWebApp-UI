@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_KEYCLOAK_URL?: string;
   readonly VITE_KEYCLOAK_REALM?: string;
   readonly VITE_KEYCLOAK_CLIENT_ID?: string;
+  /** `mock` bypasses Keycloak and serves the API from an in-browser mock (demo mode). */
+  readonly VITE_AUTH_MODE?: string;
 }
 
 interface ImportMeta {

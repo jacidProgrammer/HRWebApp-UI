@@ -1,85 +1,79 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderResult } from '@testing-library/react';
-import type { ReactElement } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import type { ReactElement, ReactNode } from 'react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { vi } from 'vitest';
-import type { Employee, Feedback } from '../api/types';
 import { AuthContext } from '../auth/AuthContext';
 import { createAuthValue } from '../auth/createAuthValue';
 import type { Role } from '../auth/roles';
 import type { AuthUser } from '../auth/user';
+import { ToastProvider } from '../components/ui/Toast';
+import type { Locale } from '../i18n/core';
+import { I18nProvider } from '../i18n/I18nProvider';
+import { ThemeProvider } from '../theme/ThemeProvider';
 
-export function makeUser(username: string, roles: Role[]): AuthUser {
-  return { username, displayName: username, email: null, roles };
+export function makeUser(username: string, roles: Role[], displayName = username): AuthUser {
+  return { username, displayName, email: null, roles };
 }
 
-export const managerUser = makeUser('manager', ['MANAGER']);
-/** Keycloak lower-cases usernames, so the employee "Jose" signs in as "jose". */
-export const employeeUser = makeUser('jose', ['EMPLOYEE']);
+export const managerUser = makeUser('manager', ['MANAGER'], 'Alex Morgan');
+/** Keycloak lower-cases usernames. */
+export const employeeUser = makeUser('jose', ['EMPLOYEE'], 'José Antonio');
 
-interface RenderOptions {
-  user: AuthUser;
-  /** Initial URL. */
+export function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false } },
+  });
+}
+
+/** Shows the current URL, so tests can assert navigation and search params. */
+export function LocationProbe() {
+  const location = useLocation();
+  return <output data-testid="location">{`${location.pathname}${location.search}`}</output>;
+}
+
+interface Options {
+  user?: AuthUser;
   route?: string;
-  /** Route pattern the element is mounted at, e.g. "/employees/:name". Defaults to "*". */
+  /** Route pattern the element is mounted at, e.g. "/people/:id". */
   path?: string;
+  locale?: Locale;
+  queryClient?: QueryClient;
 }
 
-export function renderWithAuth(ui: ReactElement, { user, route = '/', path = '*' }: RenderOptions): RenderResult & {
-  logout: ReturnType<typeof vi.fn>;
-} {
+export function renderWithProviders(
+  ui: ReactElement,
+  { user = employeeUser, route = '/', path = '*', locale = 'en', queryClient = createTestQueryClient() }: Options = {},
+): RenderResult & { logout: ReturnType<typeof vi.fn>; queryClient: QueryClient } {
   const logout = vi.fn();
-  const result = render(
-    <AuthContext.Provider value={createAuthValue(user, logout)}>
-      <MemoryRouter initialEntries={[route]}>
-        <Routes>
-          <Route path={path} element={ui} />
-          <Route path="*" element={<p>Other page</p>} />
-        </Routes>
-      </MemoryRouter>
-    </AuthContext.Provider>,
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    <I18nProvider locale={locale}>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <AuthContext.Provider value={createAuthValue(user, logout)}>
+              <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+            </AuthContext.Provider>
+          </ToastProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </I18nProvider>
   );
-  return { ...result, logout };
+  const result = render(
+    <Routes>
+      <Route
+        path={path}
+        element={
+          <>
+            {ui}
+            <LocationProbe />
+          </>
+        }
+      />
+      <Route path="*" element={<LocationProbe />} />
+    </Routes>,
+    { wrapper: Wrapper },
+  );
+  return { ...result, logout, queryClient };
 }
 
-export const jose: Employee = {
-  name: 'Jose',
-  department: 'IT',
-  role: 'Java Senior Backend',
-  email: 'jose@example.com',
-  salary: 75600,
-  address: 'Mainz, Germany',
-};
-
-export const louisa: Employee = {
-  name: 'Louisa',
-  department: 'IT',
-  role: 'Senior Agile Coach',
-  email: 'louisa@example.com',
-  salary: 79600,
-  address: 'Mainz, Germany',
-};
-
-export const maria: Employee = {
-  name: 'Maria',
-  department: 'Sales',
-  role: 'Account Executive',
-  email: 'maria@example.com',
-  salary: 61000,
-  address: 'Berlin, Germany',
-};
-
-export const hidden = (employee: Employee): Employee => ({ ...employee, salary: null, address: null });
-
-export const feedbackAboutLouisa: Feedback = {
-  name: 'Louisa',
-  message: 'Louisa is doing a great job as an Agile Coach!',
-  score: 0.97,
-  label: 'positive',
-};
-
-export const unanalysedFeedbackAboutJose: Feedback = {
-  name: 'Jose',
-  message: 'Jose is an excellent Java Backend Developer!',
-  score: null,
-  label: null,
-};

@@ -7,3 +7,7 @@ coverage
 .env.*
 docs
 *.log
+dist-mock
+e2e
+test-results
+playwright-report

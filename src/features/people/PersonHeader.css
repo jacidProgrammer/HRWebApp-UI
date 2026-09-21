@@ -1,0 +1,37 @@
+.person-header { overflow: hidden; }
+.person-header__cover {
+  height: 88px;
+  background:
+    radial-gradient(90% 180% at 0% 0%, color-mix(in srgb, var(--hue-blue) 30%, transparent), transparent 60%),
+    radial-gradient(90% 180% at 100% 0%, color-mix(in srgb, var(--hue-violet) 30%, transparent), transparent 60%),
+    var(--accent-soft);
+}
+.person-header__body {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px 24px 24px;
+}
+.person-header__avatar { margin-top: -60px; align-self: flex-start; }
+.person-header__avatar .avatar { box-shadow: 0 0 0 4px var(--surface), var(--shadow-md); }
+.person-header__text { flex: 1; min-width: 200px; display: grid; gap: 6px; justify-items: start; }
+.person-header__name {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.person-header__role { margin: 0; color: var(--text-secondary); }
+.person-header__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 560px) {
+  .person-header__body { flex-direction: column; align-items: stretch; padding: 0 16px 20px; gap: 12px; }
+  .person-header__avatar { margin-top: -40px; }
+  .person-header__text { min-width: 0; }
+  .person-header__actions { width: 100%; }
+  .person-header__actions > .btn { flex: 1; }
+  .person-header__actions > [aria-haspopup] { flex: 0 0 auto; }
+}
